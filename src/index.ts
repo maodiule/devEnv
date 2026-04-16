@@ -99,11 +99,12 @@ program
 program
   .command('remove')
   .description('删除 Docker 镜像')
+  .argument('[id]', '镜像 ID')
   .option('-c, --config <path>', '指定配置文件路径')
   .option('-a, --all', '删除所有镜像')
-  .action(async (options: { config?: string; all?: boolean }) => {
+  .action(async (id: string | undefined, options: { config?: string; all?: boolean }) => {
     try {
-      await removeCommand(options);
+      await removeCommand(id, options);
     } catch (error) {
       handleError(error);
     }

@@ -61,13 +61,13 @@ class DockerContainerManager {
   ) {
     const hostPath = fsUtils.getCwd();
 
-    const volumes: string[] = [];
     const binds: string[] = [`${hostPath}:${workspace}`];
 
     if (config.volumes) {
       config.volumes.forEach((vol) => {
         const hostVolPath = fsUtils.resolvePath(vol.host);
-        binds.push(`${hostVolPath}:${vol.container}`);
+        const mode = vol.mode || 'rw';
+        binds.push(`${hostVolPath}:${vol.container}:${mode}`);
       });
     }
 
@@ -76,9 +76,23 @@ class DockerContainerManager {
 
     if (config.ports) {
       config.ports.forEach((port) => {
-        const portStr = `${port}/tcp`;
+        let hostPort: string;
+        let containerPort: string;
+
+        if (typeof port === 'string' && port.includes(':')) {
+          // 格式: "hostPort:containerPort"
+          const [hp, cp] = port.split(':');
+          hostPort = hp;
+          containerPort = cp;
+        } else {
+          // 格式: port (主机和容器使用相同端口)
+          hostPort = `${port}`;
+          containerPort = `${port}`;
+        }
+
+        const portStr = `${containerPort}/tcp`;
         exposedPorts[portStr] = {};
-        ports[portStr] = [{ HostPort: `${port}` }];
+        ports[portStr] = [{ HostPort: hostPort }];
       });
     }
 
@@ -89,19 +103,25 @@ class DockerContainerManager {
       });
     }
 
+    const restartPolicy = config.container?.restart || 'unless-stopped';
+    const tty = config.container?.tty !== false;
+    const stdinOpen = config.container?.stdin_open !== false;
+    const cmd = config.startCommand ? config.startCommand.split(' ') : ['/bin/sh'];
+
     const createOptions = {
       Image: imageName,
-      name: containerName,
+      name: config.container?.name || containerName,
       HostConfig: {
         Binds: binds,
         PortBindings: ports,
-        RestartPolicy: { Name: 'unless-stopped' },
+        RestartPolicy: { Name: restartPolicy },
       },
       ExposedPorts: exposedPorts,
       Env: env,
       WorkingDir: workspace,
-      Tty: true,
-      Cmd: ['/bin/sh'],
+      Tty: tty,
+      StdinOpen: stdinOpen,
+      Cmd: cmd,
     };
 
     return await this.docker.createContainer(createOptions);

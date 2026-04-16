@@ -49,6 +49,9 @@ class ValidateUtils {
         if (!volume.container) {
           errors.push(`volumes[${index}] 缺少必填项: container`);
         }
+        if (volume.mode && !['rw', 'ro'].includes(volume.mode)) {
+          errors.push(`volumes[${index}].mode 必须是 rw 或 ro`);
+        }
       });
     }
 
@@ -58,6 +61,18 @@ class ValidateUtils {
 
     if (config.packages && !Array.isArray(config.packages)) {
       errors.push('packages 必须是数组');
+    }
+
+    if (config.network && typeof config.network !== 'object') {
+      errors.push('network 必须是对象');
+    }
+
+    if (config.container && typeof config.container !== 'object') {
+      errors.push('container 必须是对象');
+    } else if (config.container) {
+      if (config.container.restart && !['no', 'always', 'on-failure', 'unless-stopped'].includes(config.container.restart)) {
+        errors.push('container.restart 必须是 no, always, on-failure 或 unless-stopped');
+      }
     }
 
     return {

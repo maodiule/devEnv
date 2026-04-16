@@ -330,7 +330,7 @@ container:
   - `on-failure`: 失败时自动重启
   - `unless-stopped`: 除非手动停止，否则自动重启
 - **container.tty** <span style="color: green;">(可选)</span>: 是否分配伪终端，默认值为 `true`
-- **container.stdin_open** <span style="color: green;">(可选)</span>: 是否保持标准输入打开，默认值为 `true`
+- **container.stdin\_open** <span style="color: green;">(可选)</span>: 是否保持标准输入打开，默认值为 `true`
 
 ## 浏览器可视化界面
 
@@ -393,7 +393,7 @@ packages:
   - git
   - curl
 workspace: /app
-startCommand: pnpm dev
+startCommand: pnpm dev # 启动容器后自动运行
 buildCommand: pnpm build
 ```
 
@@ -501,6 +501,14 @@ devenv exec python -m flask run --host=0.0.0.0
 - 镜像是否存在
 - Docker 权限是否正确
 
+### 5. 本地项目访问失败
+
+**检查**:
+
+- 项目不能监听localhost, 而是0.0.0.0
+
+<br />
+
 ## 技术架构
 
 - **前端**: React + Vite + Tailwind CSS
@@ -511,16 +519,16 @@ devenv exec python -m flask run --host=0.0.0.0
 
 ## 命令参考
 
-| 命令   | 参数             | 说明                 |
-| ------ | ---------------- | -------------------- |
-| init   | \[path]          | 初始化配置文件       |
-| build  | \[-f, --force]   | 构建 Docker 镜像     |
-| up     | \[-b, --build]   | 启动开发环境         |
-| exec   | \[command...]    | 执行命令或进入容器   |
-| down   | \[-v, --volumes] | 停止并删除容器       |
-| status | -                | 查看容器状态         |
-| remove | \[id]            | 删除镜像             |
-| web    | -                | 启动浏览器可视化界面 |
+| 命令     | 参数               | 说明           |
+| ------ | ---------------- | ------------ |
+| init   | \[path]          | 初始化配置文件      |
+| build  | \[-f, --force]   | 构建 Docker 镜像 |
+| up     | \[-b, --build]   | 启动开发环境       |
+| exec   | \[command...]    | 执行命令或进入容器    |
+| down   | \[-v, --volumes] | 停止并删除容器      |
+| status | -                | 查看容器状态       |
+| remove | \[id]            | 删除镜像         |
+| web    | -                | 启动浏览器可视化界面   |
 
 ## 贡献
 
